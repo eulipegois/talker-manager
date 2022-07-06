@@ -56,4 +56,20 @@ routerTalker.post('/',
   return res.status(201).json(newTalker);
 });
 
+routerTalker.delete('/:id', tokenValidation, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readContentFile();
+
+  const talkerSelected = talkers.findIndex((talker) => talker.id === Number(id));
+
+  if (talkerSelected === -1) {
+    return res.status(404).json({ message: 'ID não encontrado!' });
+  }
+
+  talkers.splice(talkerSelected, 1);
+
+  await writeContentFile(talkers);
+  res.status(204).json(talkers);
+});
+
 module.exports = routerTalker;
