@@ -1,6 +1,11 @@
 const express = require('express');
 const { readContentFile, writeContentFile } = require('../helpers/readWriteFile');
-const authorization = require('../middleware/authorization');
+const {
+  tokenValidation,
+  nameValidation,
+  ageValidation,
+  talkValidation,
+} = require('../middleware/talkerValidation');
 const errorMiddleware = require('../middleware/errorMiddleware');
 
 const routerTalker = express.Router();
@@ -18,7 +23,13 @@ routerTalker.get('/:id', async (req, res) => {
   res.status(200).json(talker);
 });
 
-routerTalker.post('/', authorization, errorMiddleware, async (req, res) => {
+routerTalker.post('/',
+  tokenValidation,
+  nameValidation,
+  ageValidation,
+  talkValidation,
+  errorMiddleware,
+  async (req, res) => {
   const data = (req.body);
   const talkers = await readContentFile();
 
