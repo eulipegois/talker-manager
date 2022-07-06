@@ -15,11 +15,7 @@ const readContentFile = async () => {
 
 const writeContentFile = async (content) => {
   try {
-    const contentFile = await readContentFile();
-  
-    contentFile.push(content);
-  
-    await fs.writeFile(PERSONS_JSON_PATH, JSON.stringify(contentFile));
+    await fs.writeFile(PERSONS_JSON_PATH, JSON.stringify(content));
   } catch (err) {
     console.log(err.message);
     return null;

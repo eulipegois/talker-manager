@@ -23,6 +23,16 @@ routerTalker.get('/:id', async (req, res) => {
   res.status(200).json(talker);
 });
 
+routerTalker.delete('/:id', tokenValidation, errorMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readContentFile();
+
+  const newTalkers = talkers.filter((talker) => talker.id !== Number(id));
+
+  await writeContentFile(newTalkers);
+  return res.status(204).send();
+});
+
 routerTalker.post('/',
   tokenValidation,
   nameValidation,
@@ -35,7 +45,10 @@ routerTalker.post('/',
 
   data.id = talkers.length + 1;
 
-  await writeContentFile(data);
+  const contentFile = await readContentFile();
+  contentFile.push(data);
+
+  await writeContentFile(contentFile);
   return res.status(201).json(data);
 });
 
