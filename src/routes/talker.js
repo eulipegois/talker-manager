@@ -5,10 +5,21 @@ const {
   nameValidation,
   ageValidation,
   talkValidation,
+  watchedAtValidation,
+  rateValidation,
 } = require('../middleware/talkerValidation');
-const errorMiddleware = require('../middleware/errorMiddleware');
 
 const routerTalker = express.Router();
+
+routerTalker.get('/', async (_req, res) => {
+  const talkers = await readContentFile();
+
+  if (!talkers || talkers === undefined) {
+    res.status(200).json(JSON.parse([]));
+  }
+
+  res.status(200).json(talkers);
+});
 
 routerTalker.get('/:id', async (req, res) => {
   const { id } = req.params;
@@ -23,43 +34,26 @@ routerTalker.get('/:id', async (req, res) => {
   res.status(200).json(talker);
 });
 
-routerTalker.delete('/:id', tokenValidation, errorMiddleware, async (req, res) => {
-  const { id } = req.params;
-  const talkers = await readContentFile();
-
-  const newTalkers = talkers.filter((talker) => talker.id !== Number(id));
-
-  await writeContentFile(newTalkers);
-  return res.status(204).send();
-});
-
 routerTalker.post('/',
   tokenValidation,
   nameValidation,
   ageValidation,
   talkValidation,
-  errorMiddleware,
+  watchedAtValidation,
+  rateValidation,
   async (req, res) => {
-  const data = (req.body);
+  const { name, age, talk } = req.body;
   const talkers = await readContentFile();
 
-  data.id = talkers.length + 1;
+  const newTalker = {
+    name,
+    age,
+    id: talkers.length + 1,
+    talk,
+  };
 
-  const contentFile = await readContentFile();
-  contentFile.push(data);
-
-  await writeContentFile(contentFile);
-  return res.status(201).json(data);
-});
-
-routerTalker.get('/', async (_req, res) => {
-  const talkers = await readContentFile();
-
-  if (!talkers || talkers === undefined) {
-    res.status(200).json(JSON.parse([]));
-  }
-
-  res.status(200).json(talkers);
+  await writeContentFile([...talkers, newTalker]);
+  return res.status(201).json(newTalker);
 });
 
 module.exports = routerTalker;
