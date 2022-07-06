@@ -21,6 +21,18 @@ routerTalker.get('/', async (_req, res) => {
   res.status(200).json(talkers);
 });
 
+routerTalker.get('/search', tokenValidation, async (req, res) => {
+  const { q } = req.query;
+  const talkers = await readContentFile();
+
+  if (!q) return res.status(200).json(talkers);
+
+  const talkerSelected = talkers
+    .filter((talker) => talker.name.toLowerCase().includes(q.toLowerCase()));
+
+  res.status(200).json(talkerSelected);
+});
+
 routerTalker.get('/:id', async (req, res) => {
   const { id } = req.params;
   const talkers = await readContentFile();
