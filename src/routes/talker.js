@@ -68,6 +68,27 @@ routerTalker.post('/',
   return res.status(201).json(newTalker);
 });
 
+routerTalker.put('/:id',
+  tokenValidation,
+  nameValidation,
+  ageValidation,
+  talkValidation,
+  watchedAtValidation,
+  rateValidation,
+  async (req, res) => {
+    const { name, age, talk: { watchedAt, rate } } = req.body;
+    const { id } = req.params;
+    const idNumber = Number(id);
+    const talkers = await readContentFile();
+
+    const talkerSelected = talkers.find((index) => index.id === Number(id));
+
+    talkers.splice(talkerSelected, 1, { id: idNumber, name, age, talk: { watchedAt, rate } });
+
+    await writeContentFile(talkers);
+    return res.status(200).send({ id: idNumber, name, age, talk: { watchedAt, rate } });
+});
+
 routerTalker.delete('/:id', tokenValidation, async (req, res) => {
   const { id } = req.params;
   const talkers = await readContentFile();
